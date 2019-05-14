@@ -1,12 +1,5 @@
-# openstagelistener
+# Openstagelistener v0.1
 # This project listens for messages to MyPortal, a software for the unify Openscape Telephone systems and can do stuff depending on the status of the ip telephone.
-Author: Name <mark.now@web.de>
-(c) 2019 Markus Nowatzki
-v0.1
-GPL-3.0-or-later
-This program comes with ABSOLUTELY NO WARRANTY; 
-This is free software, and you are welcome to redistribute it
-under certain conditions; 
 
 I do not have the time to develop any further, maybe someone wants to use this and make it simpler ;-)
 
