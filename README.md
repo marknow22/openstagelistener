@@ -18,3 +18,7 @@ The following software is necessary:
 - ngrep - for listening to the messages that myportal receives 
 - ssh daemon on target machine
 - ssh client on client machine
+
+Problems to solve:
+
+Initial start sets listener to busy.
