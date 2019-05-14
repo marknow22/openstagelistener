@@ -1,0 +1,47 @@
+#!/bin/bash
+#Listens for Openstage Messages at MyPortal
+# Author: Name <mark.now@web.de>
+#(c) 2019 Markus Nowatzki
+#v0.1
+#GPL-3.0-or-later
+#    This program comes with ABSOLUTELY NO WARRANTY; 
+#    This is free software, and you are welcome to redistribute it
+#    under certain conditions; 
+
+PIDFILE=/tmp/openstagelistener.pid
+CONTROLFILE_ON="/tmp/openstageOn"
+MOBILEFILE_ON="/tmp/MobileOn"
+CONTROLFILE_OFF="/tmp/openstageOff"
+LOGFILE="/var/log/openstage.log"
+MYPORTALMACHINE="" #Ip adress or Name of machine where myportal is running
+$CURRENTUSER="" 
+INTERFACE="eth0"
+COUNTER=10
+
+#SELECT indial_name FROM tblattendantindials WHERE indial_number='16'
+#FROM tbluserconfig WHERE uc_entry_type=104 AND uc_user_id=56
+#FROM tbluserconfig WHERE uc_entry_type=107 AND uc_user_id=56
+
+more_echo() {
+  if [ ! -f $LOGFILE ] ; then 
+    touch $LOGFILE
+  fi
+  echo "[$(date)] -- $1"
+  echo "[$(date)] -- $1" >> $LOGFILE
+
+}
+
+#more_echo "myportal running, everything is fine [OK] - deprecated"
+more_echo "Listens for Phone On"
+su $CURRENTUSER -c "ssh $MYPORTALMACHINE sudo ./ngrep4openstage 105" > $CONTROLFILE_ON &
+#ngrep -lpqwd $INTERFACE uc_entry_type=109 > $CONTROLFILE_ON &   
+more_echo "Listens for Phone Off"
+su $CURRENTUSER -c "ssh $MYPORTALMACHINE sudo ./ngrep4openstage 106" > $CONTROLFILE_OFF &
+#ngrep -lpqwd $INTERFACE uc_entry_type=106 > $CONTROLFILE_OFF &
+chown $CURRENTUSER:$CURRENTUSER $CONTROLFILE_ON
+chown $CURRENTUSER:$CURRENTUSER $CONTROLFILE_OFF
+cp /dev/null $CONTROLFILE_ON
+cp /dev/null $CONTROLFILE_OFF
+
+touch $PIDFILE
+echo $! > $PIDFILE

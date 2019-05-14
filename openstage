@@ -1,0 +1,116 @@
+#!/bin/bash
+#Listens for Openstage Messages at MyPortal
+# Author: Name <mark.now@web.de>
+#(c) 2019 Markus Nowatzki
+#v0.1
+#GPL-3.0-or-later
+#    This program comes with ABSOLUTELY NO WARRANTY; 
+#    This is free software, and you are welcome to redistribute it
+#    under certain conditions; 
+
+#Ausgehende Anrufe:
+#------------------
+#
+#Hörer abgenommen:
+#M.SELECT * FROM tbluserconfig WHERE uc_entry_type=109 (OC)
+#
+#Hörer aufgelegt:
+#M.SELECT * FROM tbluserconfig WHERE uc_entry_type=106 (PC)
+#
+#Gewählt mit Nummer:
+#SELECT indial_name FROM tblattendantindials WHERE indial_number='123456789' //123456789 is the remote number
+#
+#Ankommende Anrufe:
+#------------------
+#
+#Es klingelt:
+#SELECT indial_name FROM tblattendantindials WHERE indial_number='16' //16 is your own number
+#M.SELECT * FROM tbluserconfig WHERE uc_entry_type=107
+#M.SELECT * FROM tbluserconfig WHERE uc_entry_type=104
+#
+#Gespräch angenommen:
+#???
+#
+#Gespräch beendet und Hörer aufgelegt:
+#M.SELECT * FROM tbluserconfig WHERE uc_entry_type=106
+#
+
+CONTROLFILE_ON="/tmp/openstageOn"
+CONTROLFILE_OFF="/tmp/openstageOff"
+PIDFILE=/tmp/openstagelistener.pid
+LOGFILE="/var/log/openstage.log"
+#For icon (uses yad for creating trayicon)
+PIPE="$HOME/.pipe.tmp"
+exec 3<> $PIPE
+
+more_echo() {
+  if [ ! -f $LOGFILE ] ; then
+    touch $LOGFILE
+  fi
+  echo "[$(date)] -- $1"
+  echo "[$(date)] -- $1" >> $LOGFILE
+
+}
+
+function checkopenstagelistener() {	
+		while ( [[ ! -f $PIDFILE ]] ); do
+		      echo -n .
+		      let counter=counter+1
+		      if [ $counter = 2000 ] ; then
+			  notify-send "No Openstagelistener. Exit"
+			  more_echo "No Openstagelistener. Exit"
+			  exit 1
+		      fi
+		      sleep 1
+		done
+		notify-send "Openstagelistener exists. Fine."
+		more_echo "Openstagelistener exists. Fine."
+}
+
+function phoneOn() {
+
+      while true; do
+
+	  if [ -s $CONTROLFILE_ON ]
+		      then
+			      more_echo "Offhook"
+			      #Action when offhook, eg. shellscript
+			      echo "icon:$HOME/.icons/offhook.png" >&3
+			      cp /dev/null $CONTROLFILE_ON
+	  fi 
+	  sleep 1s
+      done
+
+}
+
+function phoneOff() {
+
+      while true; do
+
+	  if [ -s $CONTROLFILE_OFF ]
+		      then
+			      more_echo "On hook"
+			      #Action when onhook, eg. shellscript
+			      echo "icon:$HOME/.icons/openstage.png" >&3
+			      cp /dev/null $CONTROLFILE_OFF
+	  fi 
+	  sleep 1s
+      done
+
+}
+
+sudo ./openstagelistener start 
+
+wait
+
+checkopenstagelistener
+
+wait
+
+cp /dev/null $CONTROLFILE_OFF
+cp /dev/null $CONTROLFILE_ON
+
+wait
+
+phoneOn &
+phoneOff &

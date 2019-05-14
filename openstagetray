@@ -1,0 +1,40 @@
+#!/bin/bash
+
+#initial start openstage
+#Listens for Openstage Messages at MyPortal
+# Author: Name <mark.now@web.de>
+#(c) 2019 Markus Nowatzki
+#v0.1
+#GPL-3.0-or-later
+#    This program comes with ABSOLUTELY NO WARRANTY; 
+#    This is free software, and you are welcome to redistribute it
+#    under certain conditions; 
+
+./openstage
+
+#Pipe erstellen
+PIPE="$HOME/.pipe.tmp"
+rm $PIPE
+mkfifo $PIPE
+exec 3<> $PIPE
+
+#_________________________________________________________
+#Yad Menü 
+yad --notification --listen <&3 & 
+
+#Menü
+echo "menu:\
+Start Openstagelistener!./openstage|\
+Stop Openstagelistener!sudo ./openstagelistener stop|\
+Status of Openstagelistener!sudo ./openstagelistener status|\
+_______________________________________________________________!continue|\
+Mute Volume!./volmute|\
+Unmute Volume!./volunmute|\
+Toggle Volume!./voltoggle" >&3
+
+
+#Icon des Symbols im Tray
+echo "icon:$HOME/.icons/openstage.png" >&3
+
+#Tooltip des Symbols im Tray
+echo "tooltip:Openstage" >&3echo "menu:$MENU" >&3

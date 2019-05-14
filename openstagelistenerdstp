@@ -1,0 +1,47 @@
+#!/bin/bash
+#Allows desktop to stop openstagelistener service
+#Listens for Openstage Messages at MyPortal
+# Author: Name <mark.now@web.de>
+#(c) 2019 Markus Nowatzki
+#v0.1
+#GPL-3.0-or-later
+#    This program comes with ABSOLUTELY NO WARRANTY; 
+#    This is free software, and you are welcome to redistribute it
+#    under certain conditions; 
+
+
+MYPORTALMACHINE="" #Ip adress or Name of machine where myportal is running
+
+checkmyportal() {	
+		while ( ! ssh $MYPORTALMACHINE /usr/local/bin/pidof java ); do
+		      echo -n .
+		      let counter=counter+1
+		      if [ $counter = 2000 ] ; then
+			  notify-send "No MyPortal. Exit"
+			  exit 1
+		      fi
+		      sleep 1
+		done
+}
+
+case "$1" in
+    start)
+	ssh $MYPORTALMACHINE open /Applications/myPortal.app/
+	checkmyportal
+	sudo service openstagelistener start
+	wait
+	exit 0
+    ;;
+    stop)
+	killall openstage
+	wait
+	sudo service openstagelistener stop
+	exit 0
+    ;;
+    *)
+	killall openstage
+	wait
+	sudo service openstagelistener stop
+	exit 0
+    ;;
+esac

@@ -1,0 +1,29 @@
+#!/bin/bash
+#this script needs to run on the machine, wich myportal is on.
+#Listens for Openstage Messages at MyPortal
+# Author: Name <mark.now@web.de>
+#(c) 2019 Markus Nowatzki
+#v0.1
+#GPL-3.0-or-later
+#    This program comes with ABSOLUTELY NO WARRANTY; 
+#    This is free software, and you are welcome to redistribute it
+#    under certain conditions; 
+
+  
+INTERFACE="en0"
+case "$1" in
+        105)
+        #105 is deprecated now, instead it listens and searches for below string
+        #/usr/local/bin/ngrep -lpqwd $INTERFACE uc_entry_type=105
+        /usr/local/bin/ngrep -lpqwd $INTERFACE "SELECT indial_name FROM tblattendantindials WHERE indial_number="
+;;
+        106)
+        /usr/local/bin/ngrep -lpqwd $INTERFACE uc_entry_type=106
+;;
+*)
+        echo "Usage: $0 {105|106}"
+        exit 2
+;;
+esac
+
+exit 0
